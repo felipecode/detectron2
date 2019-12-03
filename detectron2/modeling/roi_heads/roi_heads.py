@@ -400,6 +400,8 @@ class Res5ROIHeads(ROIHeads):
             self.smooth_l1_beta,
         )
 
+        print (" Fast RCNN outputs")
+
         if self.training:
             del features
             losses = outputs.losses()

@@ -136,6 +136,8 @@ class BottleneckBlock(ResNetBlockBase):
         # Add it as an option when we need to use this code to train a backbone.
 
     def forward(self, x):
+
+
         out = self.conv1(x)
         out = F.relu_(out)
 
@@ -379,6 +381,7 @@ class ResNet(Backbone):
     def forward(self, x):
         outputs = {}
         x = self.stem(x)
+
         if "stem" in self._out_features:
             outputs["stem"] = x
         for stage, name in self.stages_and_names:
@@ -410,6 +413,10 @@ def build_resnet_backbone(cfg, input_shape):
         ResNet: a :class:`ResNet` instance.
     """
     # need registration of new blocks/stems?
+
+    print ( " REGISTRING A RESNET WITH THESE SHAPES")
+
+    print (  input_shape)
     norm = cfg.MODEL.RESNETS.NORM
     stem = BasicStem(
         in_channels=input_shape.channels,

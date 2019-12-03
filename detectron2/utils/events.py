@@ -1,4 +1,5 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
+from comet_ml import Experiment
 import datetime
 import json
 import logging
@@ -193,6 +194,40 @@ lr: {lr}  {memory}\
             )
         )
 
+class CometWritter(EventWriter):
+    """
+    Write all scalars to a tensorboard file.
+    """
+
+    def __init__(self, api_key: str, project_name: str, workspace: str,
+                 window_size: int = 20, **kwargs):
+        """
+        Args:
+            log_dir (str): The directory to save the output events
+            window_size (int): the scalars will be median-smoothed by this window size
+            kwargs: other arguments passed to `torch.utils.tensorboard.SummaryWriter(...)`
+        """
+        self._window_size = window_size
+        self._writer = Experiment(api_key=api_key,
+                                          project_name=project_name, workspace=workspace)
+
+
+    def write(self):
+        storage = get_event_storage()
+        print (" Iter ", storage.iter)
+        for k, v in storage.latest_with_smoothing_hint(self._window_size).items():
+            self._writer.log_metric(k, v, storage.iter)
+
+    def write_image(self):
+        pass
+        # TODO IMPLEMENT
+        #storage = get_event_storage()
+        #for k, v in storage.latest_with_smoothing_hint(self._window_size).items():
+        #    self._writer.log_metric(k, v, storage.iter)
+
+    def close(self):
+        if hasattr(self, "_writer"):  # doesn't exist when the code fails at import
+            self._writer.close()
 
 class EventStorage:
     """
